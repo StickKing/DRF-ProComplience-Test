@@ -10,7 +10,13 @@
 - psycopg2
 - pandas
 ## Установка - Install
-Для установки данной работы необходимо произвести клонирование репозитория
-git clone https://github.com/StickKing/DRF-ProComplience-Test.git
-Произвести установку docker если его у вас нет, после чего выполнить команду
-docker-compose up
+1. Клонируем репозиторий - git clone https://github.com/StickKing/DRF-ProComplience-Test.git
+2. После этого устанавливаем в файле __docker-compose.yml__ логин и пароль от БД
+3. Установить Docker если его нет
+4. Запускаем __docker-compose up__
+5. После успешного запуска приостонавливаем работу контейнеров с помощью CTRL + C
+6. С помощью __docker-compose run web python .\manage.py createsuperuser__ создаём админа
+7. Запускаем __docker-compose up__ снова
+Теперь можно пользоваться API
+
+
