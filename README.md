@@ -16,7 +16,7 @@
 4. Запускаем __docker-compose up__
 5. После успешного запуска приостонавливаем работу контейнеров с помощью CTRL + C
 6. С помощью __docker-compose run web python .\manage.py createsuperuser__ создаём админа
-7. Запускаем __docker-compose up__ снова
+7. Запускаем ___docker-compose up___ снова
 Теперь можно пользоваться API
 
 
