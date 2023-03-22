@@ -26,30 +26,53 @@
 curl  \
   -X POST \
   -H "Content-Type: application/json" \
-  -d '{"username": "username", "password": "password"}' \
+  -d '{"username": "<your username>", "password": "<your password>"}' \
   http://0.0.0.0:8000/token/ 
 ```
 В ответ будет передано два токена access и refresh, первый как раз будет использоваться для доступа к API\
 
 Далее, чтобы получить информацию обовсех файлах и их заголовках необходимо выполнить команду: \
 ``` bash
-curl -X GET\
+curl -X GET \
   -H "Authorization: Bearer <your token>" \
   http://0.0.0.0:8000/documents/
 ```
 
 Слудущей командой мы можем получить информациб о конкретном файле и его заголовках: \
 ``` bash
-curl -X GET\
+curl -X GET \
   -H "Authorization: Bearer <your token>" \
   http://0.0.0.0:8000/documents/<id>/
 ```
 
 Для получения информации из самих файлов нужно использовать команду:
 ``` bash
-curl -X POST\
+curl -X POST \
     -H "Authorization: Bearer <your token>" \
     -F 'item_count=<count>' -F 'item_count=<item_count>' -F 'sorting_column=<column name>' -F 'sort_ascending=<True or False>' -F 'columns_name=<column name>' -F 'columns_filter=<columns_filter>'   http://0.0.0.0:8000/documents/file/<id>/
 ```
 
 Небольшие примеры работы с API можно найти в файлах: *example.sh* для linux и в *example.ps1* для пользователей Windows (PowerShell)
+
+## Пояснения по поводу вывода информации из файлов
+POST запрос documents/file/<your id>/ принимает на вход следующие параметры:
+  - columns_name — Массив (список) столбцов в которых мы будем искать значения из *columns_filter*
+  - columns_filter — Массив (список) значений искомых в стобцах *columns_name*
+  - sorting_column — Массив (список) столбцов по которым будет произведена сортировка
+  - sort_ascending — Массив (список) значений Bool где True означает что нужно производить сортировку по возрастанию, а False наоборот
+  - item_count — Значение типа INT указывает сколько необходимо вывести строк из файла \
+Все указанные выше параметры являются необязательными, если ни один из них указан не будет то выведется вся информация из файла \
+Параметр *sort_ascending* по умолчанию имеет значение True. \
+
+### Условные примеры того как работает запрос
+Если в запросе указан следующий набор данных: \
+  columns_name = ['name', 'age', 'gender'] \
+  columns_filter = ['Андрей', 12, 'Мужчина'] \
+То выведутся все строки в которых name = 'Андрей', age = 12, gender = Мужчина \
+ 
+Если в запросе указан следующий набор данных: \
+  sorting_column = ['name', 'age', 'gender'] \
+  sort_ascending = [True, False, True] \
+То выведется вся информация из файла отсортированная по трём столбцам 'name', 'age', 'gender' из которых name и gender отсортированы по возрастанию, а age по убыванию. \
+  \
+  Для большей гибкости можно указывать все эти параметры вместе.
