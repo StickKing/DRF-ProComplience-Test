@@ -1,17 +1,27 @@
 from rest_framework import authentication, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import RetrieveDestroyAPIView, ListCreateAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_yasg.utils import swagger_auto_schema
 from pandas import read_csv
 from .serializers import DocumentSerializer, AllDocumentsSerializer, FilesWorkSerialize
 from .models import *
+from .swagger_schema import *
 
 class OneDocumentView(RetrieveDestroyAPIView):
     """Представление для вывода каждого по отдельности
     документа и для удаления"""
-    permission_class = [permissions.AllowAny]
+    
+    #Указываем параметры авторизации
+    permission_classes = [permissions.IsAuthenticated]
+    #Указываем аутентификацию через JWT
+    authentication_classes = [JWTAuthentication]
+
     #Метод GET
+    @swagger_auto_schema(responses=document_GET_one_responce)
     def get(self, requests, pk):
+        """Метод GET для вывода данных об одном документе"""
         #Проверяем есть ли данный объект в БД
         try:
             document = DocumentsInfo.objects.get(pk=pk)
@@ -21,6 +31,7 @@ class OneDocumentView(RetrieveDestroyAPIView):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
     #Метод DELETE 
     def delete(self, requests, pk):
+        """Метод DELETE для удаления данных из БД"""
         #Проверяем есть ли данный объект в БД
         try:
             document = DocumentsInfo.objects.get(pk=pk)
@@ -31,26 +42,45 @@ class OneDocumentView(RetrieveDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class DocumentView(ListCreateAPIView):
-    """Представление для добавления нового документа
-    и отображения всех документов"""
+    """Представление для вывода информации обо всех документах"""
+    
+    #Указываем параметры авторизации
+    permission_classes = [permissions.IsAuthenticated]
+    #Указываем аутентификацию через JWT
+    authentication_classes = [JWTAuthentication]
+
     queryset = DocumentsInfo.objects.all()
     serializer_class = AllDocumentsSerializer
     #Метод POST
+    @swagger_auto_schema(request_body=document_POST_request)
     def post(self, request):
-        #Реализовать проверку на то что это CSV
+        """Метод загрузки нового файла в базу.
+        В данном методе происходит проверка на формат загружаемого файла,
+        если файл не явялется CSV то он будет отклонён"""
         #Передаём полученные данные в сериализатор
         serializer = DocumentSerializer(data=request.data)
         #Проверяем валидность полученных данных
         serializer.is_valid(raise_exception=True)
-        #Сохраняем данные
-        serializer.save()
-        #Возвращаем статус 200 и загруженную информацию
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        #Проверка на формат
+        if request.data['document_file'].name[-4:].lower() == '.csv':
+            #Сохраняем данные
+            serializer.save()
+            #Возвращаем статус 200 и загруженную информацию
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(data={"Error": 'Неверный формат файла'}, status=status.HTTP_400_BAD_REQUEST)
 
-class FilesWorkView(RetrieveAPIView):
+class FilesWorkView(CreateAPIView):
     """Представление для реализации сортировки и фильтрации"""
-    #Метод GET
-    def get(self, requests, pk):
+
+    #Указываем параметры авторизации
+    permission_classes = [permissions.IsAuthenticated]
+    #Указываем аутентификацию через JWT
+    authentication_classes = [JWTAuthentication]
+
+    #Метод POST
+    @swagger_auto_schema(request_body=file_GET_request)
+    def post(self, requests, pk):
 
         """Метод для вывода информации из файлов
         Если пользователь передаёт параметры sorting_column и sort_ascending

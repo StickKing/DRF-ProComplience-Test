@@ -1,7 +1,7 @@
-from rest_framework.serializers import Serializer, FileField, ModelSerializer, ListField, DictField, IntegerField, BooleanField, CharField
+from rest_framework.serializers import Serializer, FileField, ModelSerializer, ListField, DictField, IntegerField, BooleanField, CharField, ListField
 from .models import DocumentsInfo
 from pandas import read_csv
-from json import dumps
+from json import dumps, loads
 
 class DocumentSerializer(Serializer):
     """Сериализатор загружаемы документов"""
@@ -20,6 +20,7 @@ class AllDocumentsSerializer(ModelSerializer):
     class Meta:
         model = DocumentsInfo
         fields = '__all__'
+    
 
 class FilesWorkSerialize(Serializer):
     """Сериализатор для работы с csv файлами"""

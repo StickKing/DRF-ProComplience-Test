@@ -5,8 +5,8 @@ services:
       - ./data/db:/var/lib/pgsql/data
     environment:
       - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres_admin
-      - POSTGRES_PASSWORD=123qwe!@#QWE
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
   web:
     build: .
     command: bash -c "python manage.py makemigrations &&
@@ -18,8 +18,8 @@ services:
       - "8000:8000"
     environment:
       - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres_admin
-      - POSTGRES_PASSWORD=123qwe!@#QWE
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
     links:
       - "db:db"
 
